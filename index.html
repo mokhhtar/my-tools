@@ -13,7 +13,7 @@ title: "Home"
   <p class="section-title">Available Tools</p>
   <div class="tools-grid">
 
-    {% for tool in site.tools %}
+    {% for tool in site.tool_registry %}
     {% if tool.status == "stable" %}
     <a href="{{ site.baseurl }}/tools/{{ tool.slug }}/" class="tool-card">
       <div class="card-icon"><i class="ti {{ tool.icon }}" aria-hidden="true"></i></div>

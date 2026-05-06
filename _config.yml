@@ -45,7 +45,7 @@ defaults:
       layout: "tool"
 
 # Navigation (tools registry)
-tools:
+tool_registry:
   - id: reddit-to-json
     name: "Reddit → JSON"
     slug: "reddit-to-json"
