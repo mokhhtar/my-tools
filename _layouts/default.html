@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+  <meta name="author" content="{{ site.author }}" />
+
+  <!-- SEO -->
+  <meta property="og:title" content="{% if page.title %}{{ page.title }} — {{ site.title }}{% else %}{{ site.title }}{% endif %}" />
+  <meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}" />
+  <meta property="og:url" content="{{ site.url }}{{ site.baseurl }}{{ page.url }}" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ site.baseurl }}/assets/css/main.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23e8722a'/><text x='16' y='23' font-size='18' text-anchor='middle' fill='white'>⚙</text></svg>" />
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="{{ site.baseurl }}/" class="logo-link">
+        <span class="logo-icon"><i class="ti ti-tools" aria-hidden="true"></i></span>
+        <div class="logo-text">
+          <span class="logo-title">DevToolbox</span>
+          <span class="logo-sub">by {{ site.author }}</span>
+        </div>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Tools navigation">
+      <p class="nav-label">TOOLS</p>
+      {% for tool in site.tools %}
+        {% if tool.status == "stable" %}
+          <a href="{{ site.baseurl }}/tools/{{ tool.slug }}/"
+             class="nav-item {% if page.url contains tool.slug %}active{% endif %}"
+             aria-label="{{ tool.name }}">
+            <i class="ti {{ tool.icon }}" aria-hidden="true"></i>
+            <span>{{ tool.name }}</span>
+          </a>
+        {% else %}
+          <span class="nav-item disabled" title="Coming soon">
+            <i class="ti {{ tool.icon }}" aria-hidden="true"></i>
+            <span>{{ tool.name }}</span>
+            <span class="badge-soon">soon</span>
+          </span>
+        {% endif %}
+      {% endfor %}
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="https://github.com/mokhhtar" target="_blank" rel="noopener" class="footer-link">
+        <i class="ti ti-brand-github" aria-hidden="true"></i> mokhhtar
+      </a>
+    </div>
+  </aside>
+
+  <!-- Mobile header -->
+  <header class="mobile-header">
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
+      <i class="ti ti-menu-2" aria-hidden="true"></i>
+    </button>
+    <span class="mobile-title">DevToolbox</span>
+  </header>
+
+  <!-- Overlay -->
+  <div class="sidebar-overlay" id="overlay" aria-hidden="true"></div>
+
+  <!-- Main content -->
+  <main class="main-content">
+    {{ content }}
+  </main>
+
+  <script>
+    const burger = document.getElementById('burger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('visible');
+      burger.setAttribute('aria-expanded', 'true');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('visible');
+      burger.setAttribute('aria-expanded', 'false');
+    }
+
+    burger.addEventListener('click', openSidebar);
+    overlay.addEventListener('click', closeSidebar);
+  </script>
+</body>
+</html>

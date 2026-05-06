@@ -1,0 +1,62 @@
+title: "Mokhtar's Tools"
+description: "A personal toolkit for everyday tasks"
+url: "https://mokhhtar.github.io"
+baseurl: "/my-tools"
+author: "Mokhtar"
+
+# Build settings
+markdown: kramdown
+theme: null
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Sass
+sass:
+  sass_dir: assets/css
+  style: compressed
+
+# Exclude from build
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .gitignore
+  - README.md
+
+# Collections
+collections:
+  tools:
+    output: true
+    permalink: /tools/:name/
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: "default"
+  - scope:
+      path: "tools"
+    values:
+      layout: "tool"
+
+# Navigation (tools registry)
+tools:
+  - id: reddit-to-json
+    name: "Reddit → JSON"
+    slug: "reddit-to-json"
+    icon: "ti-brand-reddit"
+    description: "Convert any Reddit post with its comments into a clean, structured JSON file."
+    category: "Data"
+    status: "stable"
+  - id: coming-soon-1
+    name: "Coming Soon"
+    slug: ""
+    icon: "ti-dots"
+    description: "Another tool is on its way."
+    category: "—"
+    status: "soon"

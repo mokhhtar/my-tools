@@ -1,0 +1,170 @@
+---
+layout: tool
+title: "Reddit → JSON"
+description: "Paste a Reddit post URL or upload a raw Reddit JSON file to extract a clean, structured JSON with the post content and all its comments."
+category: "Data"
+status: stable
+---
+
+<div id="status-area"></div>
+
+<!-- ── Input section ─────────────────────────────────────── -->
+<div class="converter-section">
+  <h2>Input Method</h2>
+  <div class="input-tabs" role="tablist">
+    <button class="tab-btn active" role="tab" aria-selected="true" data-tab="url">
+      <i class="ti ti-link" aria-hidden="true"></i> Reddit URL
+    </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="file">
+      <i class="ti ti-file-upload" aria-hidden="true"></i> Upload JSON file
+    </button>
+  </div>
+
+  <!-- URL panel -->
+  <div class="tab-panel active" id="panel-url">
+    <div class="alert alert-info" style="margin-bottom:14px;">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span>Paste the full Reddit post URL. The tool fetches the public JSON from Reddit's API — no login needed.</span>
+    </div>
+    <div class="url-input-wrap">
+      <input
+        type="url"
+        id="reddit-url"
+        class="url-input"
+        placeholder="https://www.reddit.com/r/programming/comments/abc123/..."
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+  </div>
+
+  <!-- File panel -->
+  <div class="tab-panel" id="panel-file">
+    <div class="alert alert-info" style="margin-bottom:14px;">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span>
+        Download the raw Reddit JSON: open any post, add <code style="font-family:var(--font-mono);font-size:11px;background:rgba(55,138,221,.15);padding:1px 5px;border-radius:3px;">.json</code> to the URL, then save the file and upload it here.
+      </span>
+    </div>
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".json,application/json" aria-label="Upload Reddit JSON file" />
+      <i class="ti ti-file-code drop-icon" aria-hidden="true"></i>
+      <p class="drop-title">Drop your JSON file here</p>
+      <p class="drop-sub">or click to browse</p>
+      <span class="drop-filename" id="drop-filename" aria-live="polite"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Options section ───────────────────────────────────── -->
+<div class="converter-section">
+  <h2>Options</h2>
+  <div class="options-grid">
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-metadata" checked />
+      <span class="check"></span>
+      Include post metadata
+    </label>
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-deleted" />
+      <span class="check"></span>
+      Include [deleted] comments
+    </label>
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-nested" />
+      <span class="check"></span>
+      Preserve comment nesting
+    </label>
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-scores" />
+      <span class="check"></span>
+      Include vote scores
+    </label>
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-timestamps" />
+      <span class="check"></span>
+      Include timestamps (UTC)
+    </label>
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-flair" />
+      <span class="check"></span>
+      Include flair
+    </label>
+  </div>
+</div>
+
+<!-- ── Action ────────────────────────────────────────────── -->
+<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+  <button class="btn-primary" id="convert-btn" aria-label="Convert to JSON">
+    <i class="ti ti-transform" aria-hidden="true"></i>
+    Convert to JSON
+  </button>
+  <button class="btn-secondary" id="reset-btn" style="display:none;" aria-label="Reset">
+    <i class="ti ti-refresh" aria-hidden="true"></i>
+    Reset
+  </button>
+</div>
+
+<!-- ── Output section ────────────────────────────────────── -->
+<div class="output-section" id="output-section" style="display:none;" aria-live="polite">
+  <div class="output-stats" id="output-stats"></div>
+
+  <div class="output-header">
+    <span class="output-label">Output Preview</span>
+    <div class="output-actions">
+      <button class="btn-secondary" id="copy-btn">
+        <i class="ti ti-copy" aria-hidden="true"></i> Copy JSON
+      </button>
+      <button class="btn-primary" id="download-btn">
+        <i class="ti ti-download" aria-hidden="true"></i> Download .json
+      </button>
+    </div>
+  </div>
+
+  <div class="json-preview">
+    <div class="json-preview-header">
+      <div class="json-dots" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="json-filename" id="json-filename">output.json</span>
+    </div>
+    <div class="json-code" id="json-output" role="region" aria-label="JSON output"></div>
+  </div>
+</div>
+
+<!-- ── How-to ─────────────────────────────────────────────── -->
+<div class="howto">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong>Choose an input method</strong>
+        <span>Either paste a public Reddit post URL directly, or download the raw JSON by appending <code>.json</code> to any Reddit post URL and uploading that file.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong>Pick your options</strong>
+        <span>Choose what to include in the output — metadata, vote scores, timestamps, comment nesting, and more.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong>Convert and download</strong>
+        <span>Click <strong>Convert to JSON</strong>. The tool extracts the post and all its comments, structures the data, and lets you copy or download the clean JSON file.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <strong>Use in your project</strong>
+        <span>The output JSON is ready for use in any script or pipeline — compatible with the Node.js <code>redditData</code> structure from the original backend tool.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ site.baseurl }}/assets/js/reddit-converter.js"></script>

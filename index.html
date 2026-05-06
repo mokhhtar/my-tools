@@ -1,0 +1,41 @@
+---
+layout: default
+title: "Home"
+---
+
+<section class="home-hero">
+  <p class="eyebrow">Personal Toolkit</p>
+  <h1>Tools built for<br><span class="accent">real workflows.</span></h1>
+  <p>A growing collection of utilities for data wrangling, content processing, and developer tasks — all running in your browser, no server required.</p>
+</section>
+
+<section>
+  <p class="section-title">Available Tools</p>
+  <div class="tools-grid">
+
+    {% for tool in site.tools %}
+    {% if tool.status == "stable" %}
+    <a href="{{ site.baseurl }}/tools/{{ tool.slug }}/" class="tool-card">
+      <div class="card-icon"><i class="ti {{ tool.icon }}" aria-hidden="true"></i></div>
+      <p class="card-name">{{ tool.name }}</p>
+      <p class="card-desc">{{ tool.description }}</p>
+      <div class="card-footer">
+        <span class="card-cat">{{ tool.category }}</span>
+        <i class="ti ti-arrow-right card-arrow" aria-hidden="true"></i>
+      </div>
+    </a>
+    {% else %}
+    <div class="tool-card tool-card--soon">
+      <div class="card-icon"><i class="ti {{ tool.icon }}" aria-hidden="true"></i></div>
+      <p class="card-name">{{ tool.name }}</p>
+      <p class="card-desc">{{ tool.description }}</p>
+      <div class="card-footer">
+        <span class="card-cat">{{ tool.category }}</span>
+        <span class="badge-soon">coming soon</span>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+  </div>
+</section>

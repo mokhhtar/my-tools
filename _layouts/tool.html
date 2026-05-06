@@ -1,0 +1,27 @@
+---
+layout: default
+---
+
+<div class="tool-page">
+  <header class="tool-header">
+    <div class="tool-header-inner">
+      <a href="{{ site.baseurl }}/" class="back-link">
+        <i class="ti ti-arrow-left" aria-hidden="true"></i> All tools
+      </a>
+      <div class="tool-meta">
+        <span class="tool-badge" data-category="{{ page.category }}">{{ page.category }}</span>
+        {% if page.status == "stable" %}
+          <span class="status-dot stable" title="Stable"></span>
+        {% endif %}
+      </div>
+    </div>
+    <h1 class="tool-title">{{ page.title }}</h1>
+    {% if page.description %}
+      <p class="tool-description">{{ page.description }}</p>
+    {% endif %}
+  </header>
+
+  <div class="tool-body">
+    {{ content }}
+  </div>
+</div>
