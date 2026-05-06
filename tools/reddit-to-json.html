@@ -1,26 +1,29 @@
 ---
 layout: tool
 title: "Reddit → JSON"
-description: "Paste a Reddit post URL or upload a raw Reddit JSON file to extract a clean, structured JSON with the post content and all its comments."
+description: "Paste a Reddit post URL, search by keyword, or upload a raw Reddit JSON file to extract a clean, structured JSON with grooming analysis."
 category: "Data"
 status: stable
 ---
 
 <div id="status-area"></div>
 
-<!-- ── Input section ─────────────────────────────────────── -->
+<!-- ── Input Tabs ──────────────────────────────────────────── -->
 <div class="converter-section">
   <h2>Input Method</h2>
   <div class="input-tabs" role="tablist">
     <button class="tab-btn active" role="tab" aria-selected="true" data-tab="url">
       <i class="ti ti-link" aria-hidden="true"></i> Reddit URL
     </button>
+    <button class="tab-btn" role="tab" aria-selected="false" data-tab="keywords">
+      <i class="ti ti-search" aria-hidden="true"></i> Keyword Search
+    </button>
     <button class="tab-btn" role="tab" aria-selected="false" data-tab="file">
-      <i class="ti ti-file-upload" aria-hidden="true"></i> Upload JSON file
+      <i class="ti ti-file-upload" aria-hidden="true"></i> Upload JSON
     </button>
   </div>
 
-  <!-- URL panel -->
+  <!-- ── Panel: URL ──────────────────────────────────────── -->
   <div class="tab-panel active" id="panel-url">
     <div class="alert alert-info" style="margin-bottom:14px;">
       <i class="ti ti-info-circle" aria-hidden="true"></i>
@@ -31,14 +34,129 @@ status: stable
         type="url"
         id="reddit-url"
         class="url-input"
-        placeholder="https://www.reddit.com/r/programming/comments/abc123/..."
+        placeholder="https://www.reddit.com/r/wicked_edge/comments/abc123/..."
         autocomplete="off"
         spellcheck="false"
       />
     </div>
   </div>
 
-  <!-- File panel -->
+  <!-- ── Panel: Keywords ────────────────────────────────── -->
+  <div class="tab-panel" id="panel-keywords">
+    <div class="alert alert-info" style="margin-bottom:14px;">
+      <i class="ti ti-info-circle" aria-hidden="true"></i>
+      <span>Search Reddit for posts matching a keyword. The tool will fetch each post's comments in bulk and export them all as a single JSON file.</span>
+    </div>
+
+    <!-- Quick-pick keyword chips -->
+    <div class="qp-section">
+      <p class="qp-label">Quick picks</p>
+      <div class="qp-chips">
+        <button class="qp-chip" data-kw="safety razor beginner">safety razor beginner</button>
+        <button class="qp-chip" data-kw="best shaving soap">best shaving soap</button>
+        <button class="qp-chip" data-kw="hard water shampoo">hard water shampoo</button>
+        <button class="qp-chip" data-kw="beard oil recommendation">beard oil recommendation</button>
+        <button class="qp-chip" data-kw="minoxidil results">minoxidil results</button>
+        <button class="qp-chip" data-kw="electric shaver vs razor">electric shaver vs razor</button>
+      </div>
+    </div>
+
+    <!-- Keyword input -->
+    <div class="kw-input-row">
+      <input
+        type="text"
+        id="kw-input"
+        class="url-input"
+        placeholder="e.g. best safety razor for beginners"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <!-- Subreddit scope -->
+    <div class="scope-row">
+      <p class="scope-label">Search scope</p>
+      <div class="scope-radios">
+        <label class="scope-radio">
+          <input type="radio" name="sr-scope" value="all" checked /> All of Reddit
+        </label>
+        <label class="scope-radio">
+          <input type="radio" name="sr-scope" value="specific" /> Specific subreddit
+        </label>
+      </div>
+      <div id="sr-input-wrap" style="display:none; margin-top:10px;">
+        <div class="sr-prefix-wrap">
+          <span class="sr-prefix">r/</span>
+          <input type="text" id="sr-input" class="url-input sr-input" placeholder="wicked_edge" autocomplete="off" />
+        </div>
+        <!-- Subreddit quick picks -->
+        <div class="qp-chips" style="margin-top:10px;">
+          <button class="qp-chip qp-chip--sub" data-sr="wicked_edge" data-kw="">r/wicked_edge</button>
+          <button class="qp-chip qp-chip--sub" data-sr="wetshaving" data-kw="">r/wetshaving</button>
+          <button class="qp-chip qp-chip--sub" data-sr="Haircare" data-kw="">r/Haircare</button>
+          <button class="qp-chip qp-chip--sub" data-sr="HaircareScience" data-kw="">r/HaircareScience</button>
+          <button class="qp-chip qp-chip--sub" data-sr="beards" data-kw="">r/beards</button>
+          <button class="qp-chip qp-chip--sub" data-sr="tressless" data-kw="">r/tressless</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search filters -->
+    <div class="kw-filters-grid">
+      <div class="kw-filter-group">
+        <label class="kw-filter-label" for="kw-limit">Max posts</label>
+        <select id="kw-limit" class="kw-select">
+          <option value="10">10</option>
+          <option value="25" selected>25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      <div class="kw-filter-group">
+        <label class="kw-filter-label" for="kw-sort">Sort by</label>
+        <select id="kw-sort" class="kw-select">
+          <option value="relevance" selected>Relevance</option>
+          <option value="top">Top</option>
+          <option value="new">New</option>
+          <option value="comments">Comments</option>
+        </select>
+      </div>
+      <div class="kw-filter-group">
+        <label class="kw-filter-label" for="kw-time">Time period</label>
+        <select id="kw-time" class="kw-select">
+          <option value="all" selected>All time</option>
+          <option value="year">Past year</option>
+          <option value="month">Past month</option>
+          <option value="week">Past week</option>
+        </select>
+      </div>
+      <div class="kw-filter-group">
+        <label class="kw-filter-label" for="min-comments">Min comments</label>
+        <input type="number" id="min-comments" class="kw-input-num" value="3" min="0" />
+      </div>
+      <div class="kw-filter-group">
+        <label class="kw-filter-label" for="min-score">Min score</label>
+        <input type="number" id="min-score" class="kw-input-num" value="1" min="0" />
+      </div>
+      <div class="kw-filter-group">
+        <label class="kw-filter-label" for="min-comment-len">Min comment length</label>
+        <input type="number" id="min-comment-len" class="kw-input-num" value="20" min="0" />
+      </div>
+    </div>
+
+    <!-- Progress bar (hidden until search starts) -->
+    <div id="kw-progress" style="display:none; margin-top:16px;">
+      <div class="kw-progress-header">
+        <span id="kw-progress-msg" class="kw-progress-msg">Starting…</span>
+        <span id="kw-progress-label" class="kw-progress-label">0 / 0</span>
+      </div>
+      <div class="kw-progress-track">
+        <div id="kw-progress-bar" class="kw-progress-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Panel: File Upload ──────────────────────────────── -->
   <div class="tab-panel" id="panel-file">
     <div class="alert alert-info" style="margin-bottom:14px;">
       <i class="ti ti-info-circle" aria-hidden="true"></i>
@@ -56,44 +174,89 @@ status: stable
   </div>
 </div>
 
-<!-- ── Options section ───────────────────────────────────── -->
+<!-- ── Options ────────────────────────────────────────────── -->
 <div class="converter-section">
   <h2>Options</h2>
+
+  <p class="opts-group-label">Content</p>
   <div class="options-grid">
     <label class="opt-chip">
       <input type="checkbox" id="opt-metadata" checked />
       <span class="check"></span>
-      Include post metadata
+      Post metadata
     </label>
     <label class="opt-chip">
       <input type="checkbox" id="opt-deleted" />
       <span class="check"></span>
-      Include [deleted] comments
+      [deleted] comments
     </label>
     <label class="opt-chip">
       <input type="checkbox" id="opt-nested" />
       <span class="check"></span>
-      Preserve comment nesting
+      Nested replies
     </label>
     <label class="opt-chip">
       <input type="checkbox" id="opt-scores" />
       <span class="check"></span>
-      Include vote scores
+      Vote scores
     </label>
     <label class="opt-chip">
       <input type="checkbox" id="opt-timestamps" />
       <span class="check"></span>
-      Include timestamps (UTC)
+      Timestamps (UTC)
     </label>
     <label class="opt-chip">
       <input type="checkbox" id="opt-flair" />
       <span class="check"></span>
-      Include flair
+      Flair
+    </label>
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-awards" />
+      <span class="check"></span>
+      Awards count
+    </label>
+  </div>
+
+  <p class="opts-group-label" style="margin-top:14px;">Analysis <span class="badge-new">new</span></p>
+  <div class="options-grid">
+    <label class="opt-chip opt-chip--highlight">
+      <input type="checkbox" id="opt-grooming-tags" />
+      <span class="check"></span>
+      <i class="ti ti-tag" aria-hidden="true" style="font-size:13px;"></i>
+      Grooming product tags
+    </label>
+    <label class="opt-chip opt-chip--highlight">
+      <input type="checkbox" id="opt-sentiment-hints" />
+      <span class="check"></span>
+      <i class="ti ti-mood-smile" aria-hidden="true" style="font-size:13px;"></i>
+      Sentiment hints
+    </label>
+    <label class="opt-chip opt-chip--highlight">
+      <input type="checkbox" id="opt-qa-pairs" />
+      <span class="check"></span>
+      <i class="ti ti-message-question" aria-hidden="true" style="font-size:13px;"></i>
+      Q&amp;A pairs
+    </label>
+  </div>
+
+  <p class="opts-group-label" style="margin-top:14px;">Keyword search only</p>
+  <div class="options-grid">
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-selfonly" />
+      <span class="check"></span>
+      <i class="ti ti-file-text" aria-hidden="true" style="font-size:13px;"></i>
+      Text posts only
+    </label>
+    <label class="opt-chip">
+      <input type="checkbox" id="opt-delay" checked />
+      <span class="check"></span>
+      <i class="ti ti-clock" aria-hidden="true" style="font-size:13px;"></i>
+      Polite delay between fetches
     </label>
   </div>
 </div>
 
-<!-- ── Action ────────────────────────────────────────────── -->
+<!-- ── Action buttons ─────────────────────────────────────── -->
 <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
   <button class="btn-primary" id="convert-btn" aria-label="Convert to JSON">
     <i class="ti ti-transform" aria-hidden="true"></i>
@@ -103,6 +266,12 @@ status: stable
     <i class="ti ti-refresh" aria-hidden="true"></i>
     Reset
   </button>
+</div>
+
+<!-- ── Posts list (bulk mode) ─────────────────────────────── -->
+<div id="posts-list-wrap" style="display:none; margin-top:28px;">
+  <p class="opts-group-label" style="margin-bottom:10px;">Fetched posts</p>
+  <div id="posts-list" class="posts-list"></div>
 </div>
 
 <!-- ── Output section ────────────────────────────────────── -->
@@ -140,28 +309,28 @@ status: stable
       <div class="step-num">1</div>
       <div class="step-text">
         <strong>Choose an input method</strong>
-        <span>Either paste a public Reddit post URL directly, or download the raw JSON by appending <code>.json</code> to any Reddit post URL and uploading that file.</span>
+        <span>Paste a post URL, search by keyword to bulk-collect posts, or upload a raw <code>.json</code> file saved from Reddit.</span>
       </div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
       <div class="step-text">
-        <strong>Pick your options</strong>
-        <span>Choose what to include in the output — metadata, vote scores, timestamps, comment nesting, and more.</span>
+        <strong>Configure your options</strong>
+        <span>Enable grooming product tags to auto-detect brands and categories. Turn on sentiment hints to tag each post/comment as positive, negative, or mixed. Q&amp;A pairs extract the top-voted answer for each post.</span>
       </div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
       <div class="step-text">
         <strong>Convert and download</strong>
-        <span>Click <strong>Convert to JSON</strong>. The tool extracts the post and all its comments, structures the data, and lets you copy or download the clean JSON file.</span>
+        <span>Click <strong>Convert to JSON</strong>. In keyword mode a progress bar tracks each post fetch. The final JSON is ready to copy or download.</span>
       </div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
       <div class="step-text">
         <strong>Use in your project</strong>
-        <span>The output JSON is ready for use in any script or pipeline — compatible with the Node.js <code>redditData</code> structure from the original backend tool.</span>
+        <span>The output is compatible with the <code>redditData</code> structure. Grooming tags, sentiment, and Q&amp;A pairs plug directly into content-analysis pipelines.</span>
       </div>
     </div>
   </div>
