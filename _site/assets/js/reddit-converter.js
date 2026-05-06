@@ -480,7 +480,12 @@
             /* ── Q&A pairs (optional) ──────────────────── */
             if (opts.qaPairs()) {
                 const topComment = [...(jsonData[1]?.data?.children ?? [])]
-                    .filter(c => c.kind === 't1' && !isDeletedBody(c.data?.body))
+                    .filter(c => {
+                        if (c.kind !== 't1') return false;
+                        const author = (c.data?.author ?? '').toLowerCase();
+                        if (author === 'automoderator' || author.endsWith('bot')) return false;
+                        return !isDeletedBody(c.data?.body);
+                    })
                     .sort((a, b) => (b.data?.score ?? 0) - (a.data?.score ?? 0))[0];
 
                 if (topComment) {
@@ -535,7 +540,13 @@
 
     function isValidComment(c, minLen) {
         if (c.kind !== 't1') return false;
+        
         const body = c.data?.body ?? '';
+        const author = (c.data?.author ?? '').toLowerCase();
+
+        // Exclude AutoModerator and other bot accounts
+        if (author === 'automoderator' || author.endsWith('bot')) return false;
+
         if (!opts.deleted() && isDeletedBody(body)) return false;
         if (body.length < (minLen || 0)) return false;
         return true;
