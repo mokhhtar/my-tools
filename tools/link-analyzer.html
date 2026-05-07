@@ -58,39 +58,33 @@ status: stable
                         <option value="15">15 (aggressive)</option>
                     </select>
                 </div>
-                <div class="param-field">
-                    <label class="field-label" for="opt-depth">Crawl Depth (BFS)</label>
-                    <select id="opt-depth" class="select-input">
-                        <option value="0" selected>Current page only (Depth 0)</option>
-                        <option value="1">Sub-pages (Depth 1)</option>
-                        <option value="2">Deeper (Depth 2)</option>
-                    </select>
-                    <p class="field-hint">Breadth-First Search traversal.</p>
+                <div class="options-grid" style="margin-top:14px;">
+                    <label class="opt-chip">
+                        <input type="checkbox" id="opt-check-status" checked />
+                        <span class="check"></span>
+                        Check HTTP status codes
+                    </label>
+                    <label class="opt-chip">
+                        <input type="checkbox" id="opt-follow-redirects" checked />
+                        <span class="check"></span>
+                        Follow redirects
+                    </label>
+                    <label class="opt-chip">
+                        <input type="checkbox" id="opt-internal" checked />
+                        <span class="check"></span>
+                        Include internal links
+                    </label>
+                    <label class="opt-chip">
+                        <input type="checkbox" id="opt-external" checked />
+                        <span class="check"></span>
+                        Include external links
+                    </label>
+                    <label class="opt-chip">
+                        <input type="checkbox" id="opt-images" />
+                        <span class="check"></span>
+                        Include Images (jpg, png, webp...)
+                    </label>
                 </div>
-            </div>
-
-            <div class="options-grid" style="margin-top:14px;">
-                <label class="opt-chip">
-                    <input type="checkbox" id="opt-check-status" checked />
-                    <span class="check"></span>
-                    Check HTTP status codes
-                </label>
-                <label class="opt-chip">
-                    <input type="checkbox" id="opt-follow-redirects" checked />
-                    <span class="check"></span>
-                    Follow redirects
-                </label>
-                <label class="opt-chip">
-                    <input type="checkbox" id="opt-internal" checked />
-                    <span class="check"></span>
-                    Include internal links
-                </label>
-                <label class="opt-chip">
-                    <input type="checkbox" id="opt-external" checked />
-                    <span class="check"></span>
-                    Include external links
-                </label>
-            </div>
 
         </div>
     </div>

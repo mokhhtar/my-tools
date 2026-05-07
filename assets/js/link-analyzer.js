@@ -40,7 +40,7 @@
         external: () => $('opt-external').checked,
         maxLinks: () => parseInt($('opt-max-links').value, 10),
         concurrency: () => parseInt($('opt-concurrency').value, 10),
-        depth: () => parseInt($('opt-depth').value, 10),
+        includeImages: () => $('opt-images').checked,
         apiUrl: () => apiUrlIn.value.trim().replace(/\/$/, ''),
     };
 
@@ -150,9 +150,9 @@
             followRedirects: opts.followRedirects(),
             maxLinks: opts.maxLinks(),
             concurrency: opts.concurrency(),
-            depth: opts.depth(),
             includeInternal: opts.internal(),
             includeExternal: opts.external(),
+            includeImages: opts.includeImages(),
         };
 
         const apiBase = opts.apiUrl() || 'http://localhost:3000';
@@ -259,18 +259,19 @@
     function renderSummary(s) {
         if (!s) return;
         const avgT = s.avgResponseTime != null ? `${s.avgResponseTime} ms` : '—';
-        const brokenPct = s.total ? Math.round((s.broken / s.total) * 100) : 0;
-
-        summaryGrid.innerHTML = [
+        
+        const cards = [
             { label: 'Total Links', val: s.total, accent: false },
             { label: 'Internal', val: s.internal, accent: false },
             { label: 'External', val: s.external, accent: false },
+            { label: 'Images', val: s.images || 0, accent: false },
             { label: 'Broken', val: s.broken, accent: s.broken > 0, danger: s.broken > 0 },
             { label: 'Redirects', val: s.redirects, accent: false },
-            { label: 'Nofollow', val: s.nofollow, accent: false },
             { label: 'With Issues', val: s.totalIssues, accent: s.totalIssues > 0, danger: false },
             { label: 'Avg Response', val: avgT, accent: false },
-        ].map(c => `
+        ];
+
+        summaryGrid.innerHTML = cards.map(c => `
       <div class="la-stat-card ${c.danger ? 'la-stat-danger' : c.accent ? 'la-stat-accent' : ''}">
         <p class="stat-label">${c.label}</p>
         <p class="stat-value">${c.val}</p>
