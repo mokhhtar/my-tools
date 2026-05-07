@@ -540,7 +540,7 @@
 
     function isValidComment(c, minLen) {
         if (c.kind !== 't1') return false;
-        
+
         const body = c.data?.body ?? '';
         const author = (c.data?.author ?? '').toLowerCase();
 

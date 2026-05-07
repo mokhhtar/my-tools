@@ -53,6 +53,13 @@ tool_registry:
     description: "Convert any Reddit post with its comments into a clean, structured JSON file."
     category: "Data"
     status: "stable"
+  - id: video-downloader
+    name: "Video Downloader"
+    slug: "video-downloader"
+    icon: "ti-brand-youtube"
+    description: "Download videos & audio from YouTube, Twitter, TikTok, and 1000+ sites — choose quality, format, and track progress live."
+    category: "Media"
+    status: "stable"
   - id: coming-soon-1
     name: "Coming Soon"
     slug: ""
@@ -60,3 +67,4 @@ tool_registry:
     description: "Another tool is on its way."
     category: "—"
     status: "soon"
+

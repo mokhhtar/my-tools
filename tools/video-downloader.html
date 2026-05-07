@@ -1,0 +1,192 @@
+---
+layout: tool
+title: "Video Downloader"
+description: "Download videos and audio from YouTube, Twitter, Instagram, and 1000+ sites. Choose format, quality, and get real-time progress — all locally via yt-dlp."
+category: "Media"
+status: stable
+permalink: /tools/video-downloader/
+---
+
+<div id="status-area"></div>
+
+<!-- ── Server status banner ───────────────────────────────────── -->
+<div id="server-banner" class="server-banner server-banner--checking">
+  <span class="server-dot"></span>
+  <span id="server-banner-msg">Checking local server…</span>
+  <button class="server-help-btn" id="server-help-btn" style="display:none">
+    <i class="ti ti-info-circle" aria-hidden="true"></i> Setup guide
+  </button>
+</div>
+
+<!-- ── Setup guide (collapsible) ─────────────────────────────── -->
+<div class="setup-guide" id="setup-guide" style="display:none">
+  <p class="setup-guide-title"><i class="ti ti-terminal-2" aria-hidden="true"></i> One-time setup (≈ 2 minutes)</p>
+  <div class="setup-steps">
+    <div class="setup-step">
+      <span class="setup-num">1</span>
+      <div>
+        <strong>Install Python dependencies</strong>
+        <code class="setup-code">pip install flask flask-cors yt-dlp</code>
+      </div>
+    </div>
+    <div class="setup-step">
+      <span class="setup-num">2</span>
+      <div>
+        <strong>Start the local server</strong>
+        <code class="setup-code">python downloader_server.py</code>
+        <span class="setup-note">Run this from the <code>my-tools</code> folder.</span>
+      </div>
+    </div>
+    <div class="setup-step">
+      <span class="setup-num">3</span>
+      <div>
+        <strong>Reload this page</strong>
+        <span class="setup-note">The server banner above will turn green.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── URL input ──────────────────────────────────────────────── -->
+<div class="converter-section">
+  <h2>Video / Audio URL</h2>
+  <div class="dl-url-row">
+    <input
+      type="url"
+      id="dl-url"
+      class="url-input"
+      placeholder="https://www.youtube.com/watch?v=..."
+      autocomplete="off"
+      spellcheck="false"
+    />
+    <button class="btn-secondary" id="inspect-btn" aria-label="Inspect video">
+      <i class="ti ti-search" aria-hidden="true"></i> Inspect
+    </button>
+  </div>
+
+  <!-- Supported sites hint -->
+  <p class="dl-hint">
+    Supports <strong>YouTube</strong>, <strong>Twitter/X</strong>, <strong>Instagram</strong>,
+    <strong>TikTok</strong>, <strong>Facebook</strong>, <strong>Vimeo</strong>,
+    and <a href="https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md" target="_blank" rel="noopener" class="dl-sites-link">1 000+ more sites</a>.
+  </p>
+</div>
+
+<!-- ── Video preview card (hidden until inspect) ─────────────── -->
+<div class="video-preview-card" id="preview-card" style="display:none">
+  <img id="preview-thumb" class="preview-thumb" src="" alt="Thumbnail" />
+  <div class="preview-info">
+    <p class="preview-title" id="preview-title">—</p>
+    <div class="preview-meta">
+      <span id="preview-channel"><i class="ti ti-user-circle" aria-hidden="true"></i> —</span>
+      <span id="preview-duration"><i class="ti ti-clock" aria-hidden="true"></i> —</span>
+      <span id="preview-views"><i class="ti ti-eye" aria-hidden="true"></i> —</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Format / quality selection ────────────────────────────── -->
+<div class="converter-section" id="format-section" style="display:none">
+  <h2>Format &amp; Quality</h2>
+
+  <div class="dl-mode-tabs" role="tablist">
+    <button class="dl-mode-btn active" data-mode="video" role="tab" aria-selected="true">
+      <i class="ti ti-video" aria-hidden="true"></i> Video
+    </button>
+    <button class="dl-mode-btn" data-mode="audio" role="tab" aria-selected="false">
+      <i class="ti ti-music" aria-hidden="true"></i> Audio only
+    </button>
+  </div>
+
+  <!-- Video quality grid -->
+  <div id="video-quality-panel">
+    <p class="opts-group-label" style="margin-bottom:10px;">Quality</p>
+    <div class="quality-grid" id="quality-grid">
+      <!-- Populated by JS after inspect -->
+    </div>
+  </div>
+
+  <!-- Audio format panel -->
+  <div id="audio-format-panel" style="display:none">
+    <p class="opts-group-label" style="margin-bottom:10px;">Audio format</p>
+    <div class="quality-grid">
+      <button class="quality-btn active" data-codec="mp3">MP3 <span class="q-sub">192kbps</span></button>
+      <button class="quality-btn" data-codec="m4a">M4A <span class="q-sub">AAC</span></button>
+      <button class="quality-btn" data-codec="opus">Opus <span class="q-sub">OGG</span></button>
+      <button class="quality-btn" data-codec="wav">WAV <span class="q-sub">Lossless</span></button>
+      <button class="quality-btn" data-codec="flac">FLAC <span class="q-sub">Lossless</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Action buttons ─────────────────────────────────────────── -->
+<div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:28px;">
+  <button class="btn-primary" id="download-btn" disabled aria-label="Start download">
+    <i class="ti ti-download" aria-hidden="true"></i> Download
+  </button>
+  <button class="btn-secondary" id="open-folder-btn" aria-label="Open downloads folder">
+    <i class="ti ti-folder-open" aria-hidden="true"></i> Open downloads folder
+  </button>
+</div>
+
+<!-- ── Progress ───────────────────────────────────────────────── -->
+<div id="dl-progress-wrap" style="display:none; margin-bottom:28px;">
+  <div class="kw-progress-header">
+    <span id="dl-progress-msg" class="kw-progress-msg">Starting…</span>
+    <span id="dl-progress-pct" class="kw-progress-label">0%</span>
+  </div>
+  <div class="kw-progress-track">
+    <div id="dl-progress-bar" class="kw-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+  </div>
+  <div class="dl-progress-meta">
+    <span id="dl-speed"><i class="ti ti-bolt" aria-hidden="true"></i> —</span>
+    <span id="dl-eta"><i class="ti ti-clock" aria-hidden="true"></i> ETA —</span>
+    <span id="dl-size"><i class="ti ti-file" aria-hidden="true"></i> —</span>
+    <button class="dl-cancel-btn" id="dl-cancel-btn">
+      <i class="ti ti-x" aria-hidden="true"></i> Cancel
+    </button>
+  </div>
+</div>
+
+<!-- ── Download history ───────────────────────────────────────── -->
+<div class="converter-section" id="history-section" style="display:none">
+  <h2>Download History <span class="badge-new" style="font-size:9px;">session</span></h2>
+  <div id="history-list" class="history-list"></div>
+</div>
+
+<!-- ── How-to ─────────────────────────────────────────────────── -->
+<div class="howto">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">
+        <strong>Paste a URL</strong>
+        <span>Paste any video URL and click <strong>Inspect</strong> to preview the video and see all available quality options.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">
+        <strong>Choose format &amp; quality</strong>
+        <span>Select <em>Video</em> (MP4) or <em>Audio only</em> (MP3, FLAC, WAV…) and pick a resolution.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">
+        <strong>Download with real-time progress</strong>
+        <span>A live progress bar shows speed, ETA, and downloaded size. Files are saved to the <code>downloads/</code> folder automatically.</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text">
+        <strong>Open your downloads folder</strong>
+        <span>Click <strong>Open downloads folder</strong> to find your files instantly.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ site.baseurl }}/assets/js/video-downloader.js"></script>
