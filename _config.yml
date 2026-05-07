@@ -60,6 +60,13 @@ tool_registry:
     description: "Download videos & audio from YouTube, Twitter, TikTok, and 1000+ sites — choose quality, format, and track progress live."
     category: "Media"
     status: "stable"
+  - id: link-analyzer
+    name: "Link Analyzer"
+    slug: "link-analyzer"
+    icon: "ti-link"
+    description: "Extract and check all links on any page for SEO issues and broken statuses."
+    category: "SEO"
+    status: "stable"
   - id: coming-soon-1
     name: "Coming Soon"
     slug: ""

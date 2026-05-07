@@ -1,3 +1,25 @@
-/downloads
-/_site/downloads
-/_site/downloads
+# Jekyll
+_site/
+.jekyll-cache/
+.jekyll-metadata
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env/
+
+# Tool specific
+/downloads/
+.DS_Store
+Thumbs.db
