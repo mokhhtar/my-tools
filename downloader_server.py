@@ -63,11 +63,6 @@ def make_ydl_opts(fmt_code: str, job_id: str, audio_only: bool, prefer_codec: st
                    "downloaded": human_size(downloaded),
                    "total": human_size(total) if total else "?"})
 
-        elif d["status"] == "finished":
-            fname = os.path.basename(d.get("filename", ""))
-            jobs[job_id]["filename"] = fname
-            q.put({"event": "finished", "filename": fname})
-
         elif d["status"] == "error":
             q.put({"event": "error", "message": str(d.get("error", "Unknown error"))})
 
@@ -77,6 +72,8 @@ def make_ydl_opts(fmt_code: str, job_id: str, audio_only: bool, prefer_codec: st
         "quiet": True,
         "no_warnings": True,
         "noplaylist": True,
+        "external_downloader": "aria2c",
+        "external_downloader_args": ["-x", "16", "-k", "1M"]
     }
 
     if audio_only:
@@ -88,11 +85,20 @@ def make_ydl_opts(fmt_code: str, job_id: str, audio_only: bool, prefer_codec: st
         }]
     elif fmt_code and fmt_code not in ("best", "bestvideo+bestaudio"):
         # user picked a specific format id from the /info response
-        opts["format"] = f"{fmt_code}+bestaudio/best"
+        # We prefer m4a audio for better compatibility with MP4 container
+        opts["format"] = f"{fmt_code}+bestaudio[ext=m4a]/bestaudio/best"
         opts["merge_output_format"] = "mp4"
+        # Force AAC audio codec for maximum compatibility in MP4
+        opts["postprocessor_args"] = {
+            "ffmpeg": ["-c:a", "aac"]
+        }
     else:
-        opts["format"] = "bestvideo+bestaudio/best"
+        # Default "best" case: prefer mp4 video and m4a audio
+        opts["format"] = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
         opts["merge_output_format"] = "mp4"
+        opts["postprocessor_args"] = {
+            "ffmpeg": ["-c:a", "aac"]
+        }
 
     return opts
 
@@ -197,12 +203,24 @@ def start_download():
         try:
             opts = make_ydl_opts(fmt_code, job_id, audio_only, audio_codec)
             with yt_dlp.YoutubeDL(opts) as ydl:
-                ydl.download([url])
+                # ydl.download returns the status code, but we want the info for the filename
+                info = ydl.extract_info(url, download=True)
+                # The filename might change after merging, so we get the final path
+                final_path = ydl.prepare_filename(info)
+                # For some formats, the extension might change (e.g. mkv -> mp4)
+                # so we check what actually exists on disk
+                base, _ = os.path.splitext(final_path)
+                ext = opts.get("merge_output_format", "mp4")
+                actual_filename = os.path.basename(f"{base}.{ext}")
+                
             jobs[job_id]["status"] = "done"
+            jobs[job_id]["filename"] = actual_filename
+            jobs[job_id]["queue"].put({"event": "finished", "filename": actual_filename})
+
             # Add to history
             record = {
                 "job_id":   job_id,
-                "filename": jobs[job_id]["filename"],
+                "filename": actual_filename,
                 "url":      url,
                 "finished": datetime.now().isoformat(),
                 "audio":    audio_only,
