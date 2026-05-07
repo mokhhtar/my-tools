@@ -73,7 +73,7 @@ def make_ydl_opts(fmt_code: str, job_id: str, audio_only: bool, prefer_codec: st
         "no_warnings": True,
         "noplaylist": True,
         "external_downloader": "aria2c",
-        "external_downloader_args": ["-x", "16", "-k", "1M"]
+        "external_downloader_args": ["-x", "16", "-s", "16", "-k", "1M"]
     }
 
     if audio_only:
