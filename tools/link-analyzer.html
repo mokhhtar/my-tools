@@ -5,6 +5,7 @@ description: "Extract all internal and external links from any webpage, check th
 issues — all from one place."
 category: "SEO"
 status: stable
+permalink: /tools/link-analyzer/
 ---
 
 <div id="status-area"></div>
@@ -86,140 +87,144 @@ status: stable
                     </label>
                 </div>
 
+            </div>
         </div>
     </div>
-</div>
 
-<!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
      PROGRESS
 ═══════════════════════════════════════════════════════ -->
-<div id="progress-wrap" style="display:none;" aria-live="polite">
-    <div class="progress-track" style="margin-bottom:8px;">
-        <div class="progress-bar progress-indeterminate" id="main-progress"></div>
+    <div id="progress-wrap" style="display:none;" aria-live="polite">
+        <div class="progress-track" style="margin-bottom:8px;">
+            <div class="progress-bar progress-indeterminate" id="main-progress"></div>
+        </div>
+        <p id="progress-msg" style="font-size:12px; color:var(--text-3); font-family:var(--font-mono);"></p>
     </div>
-    <p id="progress-msg" style="font-size:12px; color:var(--text-3); font-family:var(--font-mono);"></p>
-</div>
 
-<!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
      RESULTS
 ═══════════════════════════════════════════════════════ -->
-<div id="results-section" style="display:none;" aria-live="polite">
+    <div id="results-section" style="display:none;" aria-live="polite">
 
-    <!-- Page meta overview -->
-    <div class="page-meta-card" id="page-meta-card">
-        <div class="page-meta-inner" id="page-meta-inner"></div>
-    </div>
-
-    <!-- Summary cards -->
-    <div class="la-summary-grid" id="summary-grid"></div>
-
-    <!-- Issue legend -->
-    <div id="issue-legend" class="issue-legend"></div>
-
-    <!-- Filter + export bar -->
-    <div class="table-toolbar">
-        <div class="filter-tabs" id="filter-tabs" role="tablist">
-            <button class="ftab active" data-filter="all" role="tab">All <span class="ftab-count"
-                    id="fc-all"></span></button>
-            <button class="ftab" data-filter="internal" role="tab">Internal <span class="ftab-count"
-                    id="fc-internal"></span></button>
-            <button class="ftab" data-filter="external" role="tab">External <span class="ftab-count"
-                    id="fc-external"></span></button>
-            <button class="ftab" data-filter="broken" role="tab">Broken <span class="ftab-count"
-                    id="fc-broken"></span></button>
-            <button class="ftab" data-filter="issues" role="tab">Has Issues <span class="ftab-count"
-                    id="fc-issues"></span></button>
-            <button class="ftab" data-filter="nofollow" role="tab">Nofollow <span class="ftab-count"
-                    id="fc-nofollow"></span></button>
+        <!-- Page meta overview -->
+        <div class="page-meta-card" id="page-meta-card">
+            <div class="page-meta-inner" id="page-meta-inner"></div>
         </div>
-        <div class="export-actions">
-            <button class="btn-secondary" id="export-csv-btn">
-                <i class="ti ti-file-type-csv" aria-hidden="true"></i> CSV
-            </button>
-            <button class="btn-secondary" id="export-json-btn">
-                <i class="ti ti-braces" aria-hidden="true"></i> JSON
-            </button>
+
+        <!-- Summary cards -->
+        <div class="la-summary-grid" id="summary-grid"></div>
+
+        <!-- Issue legend -->
+        <div id="issue-legend" class="issue-legend"></div>
+
+        <!-- Filter + export bar -->
+        <div class="table-toolbar">
+            <div class="filter-tabs" id="filter-tabs" role="tablist">
+                <button class="ftab active" data-filter="all" role="tab">All <span class="ftab-count"
+                        id="fc-all"></span></button>
+                <button class="ftab" data-filter="internal" role="tab">Internal <span class="ftab-count"
+                        id="fc-internal"></span></button>
+                <button class="ftab" data-filter="external" role="tab">External <span class="ftab-count"
+                        id="fc-external"></span></button>
+                <button class="ftab" data-filter="broken" role="tab">Broken <span class="ftab-count"
+                        id="fc-broken"></span></button>
+                <button class="ftab" data-filter="issues" role="tab">Has Issues <span class="ftab-count"
+                        id="fc-issues"></span></button>
+                <button class="ftab" data-filter="nofollow" role="tab">Nofollow <span class="ftab-count"
+                        id="fc-nofollow"></span></button>
+            </div>
+            <div class="export-actions">
+                <button class="btn-secondary" id="export-csv-btn">
+                    <i class="ti ti-file-type-csv" aria-hidden="true"></i> CSV
+                </button>
+                <button class="btn-secondary" id="export-json-btn">
+                    <i class="ti ti-braces" aria-hidden="true"></i> JSON
+                </button>
+            </div>
         </div>
+
+        <!-- Search within results -->
+        <div style="margin-bottom:12px;">
+            <input type="text" id="table-search" class="url-input" placeholder="Filter by URL or anchor text…"
+                style="max-width:400px; height:36px; font-size:12.5px;" />
+        </div>
+
+        <!-- Results table -->
+        <div class="la-table-wrap">
+            <table class="la-table" id="links-table" aria-label="Extracted links">
+                <thead>
+                    <tr>
+                        <th class="th-num">#</th>
+                        <th class="th-sortable" data-col="url">URL <span class="sort-icon">↕</span></th>
+                        <th class="th-sortable" data-col="text">Anchor Text <span class="sort-icon">↕</span></th>
+                        <th class="th-sortable" data-col="type">Type <span class="sort-icon">↕</span></th>
+                        <th>Rel</th>
+                        <th class="th-sortable" data-col="status">Status <span class="sort-icon">↕</span></th>
+                        <th class="th-sortable" data-col="time">Time (ms) <span class="sort-icon">↕</span></th>
+                        <th>Issues</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+
+        <p id="truncated-note"
+            style="display:none; font-size:12px; color:var(--text-3); margin-top:8px; font-family:var(--font-mono);">
+        </p>
     </div>
 
-    <!-- Search within results -->
-    <div style="margin-bottom:12px;">
-        <input type="text" id="table-search" class="url-input" placeholder="Filter by URL or anchor text…"
-            style="max-width:400px; height:36px; font-size:12.5px;" />
-    </div>
-
-    <!-- Results table -->
-    <div class="la-table-wrap">
-        <table class="la-table" id="links-table" aria-label="Extracted links">
-            <thead>
-                <tr>
-                    <th class="th-num">#</th>
-                    <th class="th-sortable" data-col="url">URL <span class="sort-icon">↕</span></th>
-                    <th class="th-sortable" data-col="text">Anchor Text <span class="sort-icon">↕</span></th>
-                    <th class="th-sortable" data-col="type">Type <span class="sort-icon">↕</span></th>
-                    <th>Rel</th>
-                    <th class="th-sortable" data-col="status">Status <span class="sort-icon">↕</span></th>
-                    <th class="th-sortable" data-col="time">Time (ms) <span class="sort-icon">↕</span></th>
-                    <th>Issues</th>
-                </tr>
-            </thead>
-            <tbody id="table-body"></tbody>
-        </table>
-    </div>
-
-    <p id="truncated-note"
-        style="display:none; font-size:12px; color:var(--text-3); margin-top:8px; font-family:var(--font-mono);"></p>
-</div>
-
-<!-- ══════════════════════════════════════════════════════
+    <!-- ══════════════════════════════════════════════════════
      WHAT IT ANALYZES — GUIDE
 ═══════════════════════════════════════════════════════ -->
-<div class="howto" id="guide-section">
-    <h2>What gets analyzed</h2>
-    <div class="steps">
-        <div class="step">
-            <div class="step-num">1</div>
-            <div class="step-text">
-                <strong>Link extraction</strong>
-                <span>Every <code>&lt;a href&gt;</code> on the page is extracted — internal and external — with its
-                    anchor text, <code>rel</code> attribute, <code>target</code>, and whether it's an image link.</span>
+    <div class="howto" id="guide-section">
+        <h2>What gets analyzed</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    <strong>Link extraction</strong>
+                    <span>Every <code>&lt;a href&gt;</code> on the page is extracted — internal and external — with its
+                        anchor text, <code>rel</code> attribute, <code>target</code>, and whether it's an image
+                        link.</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    <strong>HTTP status check</strong>
+                    <span>Each link is pinged with an HTTP HEAD request (falling back to GET). The status code, response
+                        time, and final redirect URL are recorded.</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    <strong>SEO issue detection</strong>
+                    <span>13 issue types are flagged per link: empty anchors, generic anchors, broken links, redirects,
+                        missing <code>rel="noopener"</code>, nofollow, long URLs, HTTP links, and more.</span>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">
+                    <strong>Page-level metadata</strong>
+                    <span>The tool also extracts the page title, meta description, canonical URL, meta robots tag, and
+                        H1/H2
+                        counts from the target page.</span>
+                </div>
             </div>
         </div>
-        <div class="step">
-            <div class="step-num">2</div>
-            <div class="step-text">
-                <strong>HTTP status check</strong>
-                <span>Each link is pinged with an HTTP HEAD request (falling back to GET). The status code, response
-                    time, and final redirect URL are recorded.</span>
-            </div>
-        </div>
-        <div class="step">
-            <div class="step-num">3</div>
-            <div class="step-text">
-                <strong>SEO issue detection</strong>
-                <span>13 issue types are flagged per link: empty anchors, generic anchors, broken links, redirects,
-                    missing <code>rel="noopener"</code>, nofollow, long URLs, HTTP links, and more.</span>
-            </div>
-        </div>
-        <div class="step">
-            <div class="step-num">4</div>
-            <div class="step-text">
-                <strong>Page-level metadata</strong>
-                <span>The tool also extracts the page title, meta description, canonical URL, meta robots tag, and H1/H2
-                    counts from the target page.</span>
-            </div>
+
+        <div class="alert alert-warning" style="margin-top:24px;">
+            <i class="ti ti-server" aria-hidden="true"></i>
+            <span>
+                <strong>Requires local backend:</strong> This tool needs the <strong>devtoolbox-backend</strong> Node.js
+                server running on your machine.
+                Run <code>npm install &amp;&amp; npm start</code> in the <code>devtoolbox-backend/</code> folder, then
+                set
+                the API URL in the options above.
+            </span>
         </div>
     </div>
 
-    <div class="alert alert-warning" style="margin-top:24px;">
-        <i class="ti ti-server" aria-hidden="true"></i>
-        <span>
-            <strong>Requires local backend:</strong> This tool needs the <strong>devtoolbox-backend</strong> Node.js
-            server running on your machine.
-            Run <code>npm install &amp;&amp; npm start</code> in the <code>devtoolbox-backend/</code> folder, then set
-            the API URL in the options above.
-        </span>
-    </div>
-</div>
-
-<script src="{{ site.baseurl }}/assets/js/link-analyzer.js"></script>
+    <script src="{{ site.baseurl }}/assets/js/link-analyzer.js"></script>
