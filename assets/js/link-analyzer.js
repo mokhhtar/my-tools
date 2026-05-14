@@ -59,6 +59,12 @@
         const apiBase = opts.apiUrl() || 'http://localhost:3000';
         const bannerId = 'server-banner-top';
         
+        // Show online help if not on localhost
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            const oh = $('online-help');
+            if (oh) oh.style.display = 'block';
+        }
+
         // Remove old banner if exists
         const old = $(bannerId);
         if (old) old.remove();
@@ -66,23 +72,41 @@
         const banner = document.createElement('div');
         banner.id = bannerId;
         banner.className = 'server-banner server-banner--checking';
-        banner.innerHTML = `<div class="server-dot"></div><span>Checking local backend...</span>`;
+        banner.innerHTML = `<div class="server-dot"></div><span>Checking backend connectivity...</span>`;
         statusArea.prepend(banner);
 
+        const isPageHttps = window.location.protocol === 'https:';
+        const isApiHttp = apiBase.startsWith('http:');
+
         try {
-            const res = await fetch(`${apiBase}/health`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            const res = await fetch(`${apiBase}/health`, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            
             if (res.ok) {
                 banner.className = 'server-banner server-banner--online';
                 banner.innerHTML = `<div class="server-dot"></div><span>Backend Online (${apiBase})</span>`;
             } else {
                 throw new Error();
             }
-        } catch {
+        } catch (err) {
             banner.className = 'server-banner server-banner--offline';
+            
+            let errorMsg = `Backend Offline. Run <code>npm start</code> in <code>devtoolbox-backend/</code>`;
+            let helpMsg = 'Retry';
+
+            if (isPageHttps && isApiHttp) {
+                errorMsg = `<strong>Security Block (Mixed Content):</strong> You are on HTTPS, but the API is HTTP. <br><small>Browsers block this by default. Try using an HTTP version of this site or host the API with SSL.</small>`;
+                helpMsg = 'Reload Site';
+            } else if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && apiBase.includes('localhost')) {
+                errorMsg = `<strong>Remote Access:</strong> Site is online, but trying to reach <code>localhost</code> on your machine. <br><small>Ensure the backend is running and you've allowed insecure content in your browser.</small>`;
+            }
+
             banner.innerHTML = `
                 <div class="server-dot"></div>
-                <span>Backend Offline. Run <code>npm start</code> in <code>devtoolbox-backend/</code></span>
-                <button class="server-help-btn" onclick="location.reload()">Retry</button>
+                <span>${errorMsg}</span>
+                <button class="server-help-btn" onclick="location.reload()">${helpMsg}</button>
             `;
         }
     }
@@ -159,12 +183,23 @@
 
         // Health check first
         try {
-            await fetch(`${apiBase}/health`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000);
+            await fetch(`${apiBase}/health`, { signal: controller.signal });
+            clearTimeout(timeoutId);
         } catch {
             setLoading(false);
+            const isPageHttps = window.location.protocol === 'https:';
+            const isApiHttp = apiBase.startsWith('http:');
+            
+            let extra = '';
+            if (isPageHttps && isApiHttp) {
+                extra = `<br><br><strong>Security Note:</strong> You are accessing this site via <strong>HTTPS</strong>, but your backend is <strong>HTTP</strong>. Browsers block "Mixed Content" for security. You must either host the backend on HTTPS or allow "Insecure Content" in your browser's site settings.`;
+            }
+
             showStatus('error', 'ti-server-off',
                 `Cannot reach backend at <code>${apiBase}</code>.<br>
-         Run <code>npm install &amp;&amp; npm start</code> in the <strong>devtoolbox-backend/</strong> folder.`);
+          Ensure <code>npm start</code> is running in the <strong>devtoolbox-backend/</strong> folder.${extra}`);
             guideSection.style.display = 'block';
             return;
         }

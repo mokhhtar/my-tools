@@ -215,14 +215,18 @@ permalink: /tools/link-analyzer/
             </div>
         </div>
 
-        <div class="alert alert-warning" style="margin-top:24px;">
+        <div class="alert alert-warning" id="backend-warning" style="margin-top:24px;">
             <i class="ti ti-server" aria-hidden="true"></i>
             <span>
-                <strong>Requires local backend:</strong> This tool needs the <strong>devtoolbox-backend</strong> Node.js
-                server running on your machine.
-                Run <code>npm install &amp;&amp; npm start</code> in the <code>devtoolbox-backend/</code> folder, then
-                set
-                the API URL in the options above.
+                <strong>Requires Backend:</strong> This tool needs the <strong>devtoolbox-backend</strong> Node.js
+                server to crawl sites and bypass CORS.
+                <br><br>
+                <span id="backend-instructions">
+                    Run <code>npm install && npm start</code> in the <code>devtoolbox-backend/</code> folder.
+                </span>
+                <div id="online-help" style="display:none; margin-top:8px; font-size: 0.9em; opacity: 0.9;">
+                    <i class="ti ti-info-circle"></i> Running online? You must host the backend (e.g. on Render/Fly.io) and set its URL in the settings above, or run it locally and allow "Insecure Content" in your browser settings.
+                </div>
             </span>
         </div>
     </div>
