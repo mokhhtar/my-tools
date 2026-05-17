@@ -1,0 +1,257 @@
+---
+layout: tool
+title: "AI Hair Visualizer"
+description: "Upload your photo and see how you'd look with any haircut or product style — powered by Stable Diffusion
+inpainting, running on HuggingFace's free AI servers."
+category: "AI"
+status: stable
+---
+
+<div id="status-area"></div>
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 1 — Upload Photo
+═══════════════════════════════════════════════════════ -->
+<div class="hv-step" id="step-upload">
+    <div class="hv-step-header">
+        <span class="hv-step-num">1</span>
+        <h2 class="hv-step-title">Upload Your Photo</h2>
+    </div>
+
+    <div class="hv-upload-row">
+
+        <!-- Drop zone -->
+        <div class="hv-drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Upload portrait photo">
+            <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp"
+                aria-label="Select portrait photo" />
+            <div class="hv-drop-idle" id="drop-idle">
+                <i class="ti ti-camera-plus" aria-hidden="true"></i>
+                <p class="hv-drop-title">Drop your photo here</p>
+                <p class="hv-drop-sub">or <strong>click to browse</strong></p>
+                <p class="hv-drop-hint">JPEG · PNG · WebP &nbsp;·&nbsp; max 15 MB</p>
+            </div>
+            <div class="hv-drop-preview" id="drop-preview" style="display:none">
+                <img id="preview-img" alt="Your portrait" />
+                <button class="hv-change-btn" id="change-photo-btn" type="button">
+                    <i class="ti ti-refresh" aria-hidden="true"></i> Change photo
+                </button>
+            </div>
+        </div>
+
+        <!-- Photo tips -->
+        <div class="hv-photo-tips">
+            <p class="hv-tips-title"><i class="ti ti-info-circle" aria-hidden="true"></i> Photo tips</p>
+            <ul>
+                <li><i class="ti ti-check" aria-hidden="true"></i> Frontal face, straight on</li>
+                <li><i class="ti ti-check" aria-hidden="true"></i> Good lighting, no harsh shadows</li>
+                <li><i class="ti ti-check" aria-hidden="true"></i> Hair and forehead fully visible</li>
+                <li><i class="ti ti-x" aria-hidden="true"></i> Avoid sunglasses or hats</li>
+                <li><i class="ti ti-x" aria-hidden="true"></i> Avoid extreme side profiles</li>
+            </ul>
+            <!-- Mask preview -->
+            <button class="btn-secondary" id="mask-preview-btn" style="margin-top:14px; display:none; width:100%;"
+                type="button">
+                <i class="ti ti-eye" aria-hidden="true"></i> Preview hair mask
+            </button>
+            <p class="field-hint" style="margin-top:6px;">
+                Shows exactly which area the AI will repaint.
+                Use this to check a tricky photo before generating.
+            </p>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 2 — Choose Style
+═══════════════════════════════════════════════════════ -->
+<div class="hv-step hv-step-locked" id="step-style">
+    <div class="hv-step-header">
+        <span class="hv-step-num">2</span>
+        <h2 class="hv-step-title">Choose a Style</h2>
+    </div>
+
+    <!-- Category tabs -->
+    <div class="hv-cat-tabs" id="cat-tabs" role="tablist">
+        <!-- Populated by JS after fetching /api/hairstyles -->
+    </div>
+
+    <!-- Style grid -->
+    <div class="hv-style-grid" id="style-grid" role="listbox" aria-label="Hairstyle options">
+        <!-- Populated by JS -->
+    </div>
+
+    <!-- OR: custom prompt -->
+    <details class="hv-custom-prompt-wrap">
+        <summary>Or describe a custom look…</summary>
+        <div style="margin-top:10px;">
+            <textarea id="custom-prompt" class="hv-textarea"
+                placeholder='e.g. "long wavy blonde hair with highlights, natural beach look"' rows="3"
+                maxlength="300"></textarea>
+            <p class="field-hint">Custom prompts override any selected style card above.</p>
+        </div>
+    </details>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     STEP 3 — Generate
+═══════════════════════════════════════════════════════ -->
+<div class="hv-step hv-step-locked" id="step-generate">
+    <div class="hv-step-header">
+        <span class="hv-step-num">3</span>
+        <h2 class="hv-step-title">Generate</h2>
+    </div>
+
+    <!-- API config (collapsible) -->
+    <div style="margin-bottom:16px;">
+        <button class="api-config-toggle" id="api-toggle" aria-expanded="false">
+            <i class="ti ti-settings-2" aria-hidden="true"></i>
+            Backend settings
+            <i class="ti ti-chevron-down toggle-chevron" aria-hidden="true"></i>
+        </button>
+        <div class="api-config-panel" id="api-panel" aria-hidden="true" style="display:none;">
+            <div class="param-grid" style="margin-top:12px;">
+                <div class="param-field">
+                    <label class="field-label" for="api-url">Backend API URL</label>
+                    <input type="url" id="api-url" class="url-input" value="http://localhost:5001" autocomplete="off"
+                        spellcheck="false" />
+                    <p class="field-hint">Run <code>python app.py</code> in <strong>hairviz-backend/</strong></p>
+                </div>
+                <div class="param-field">
+                    <label class="field-label" for="opt-steps">AI steps (quality vs. speed)</label>
+                    <select id="opt-steps" class="select-input">
+                        <option value="20">20 — fast (~15s)</option>
+                        <option value="30" selected>30 — balanced (~25s)</option>
+                        <option value="40">40 — high quality (~40s)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate button -->
+    <button class="btn-primary hv-generate-btn" id="generate-btn" type="button" disabled>
+        <i class="ti ti-wand" aria-hidden="true"></i>
+        Visualize My Hair
+    </button>
+
+    <!-- Loading state -->
+    <div class="hv-loading" id="loading-state" style="display:none;" aria-live="polite">
+        <div class="progress-track" style="margin-bottom:12px;">
+            <div class="progress-bar progress-indeterminate" id="gen-progress"></div>
+        </div>
+        <div class="hv-loading-msg" id="loading-msg">Starting…</div>
+        <p class="field-hint" style="margin-top:6px;" id="loading-hint"></p>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     RESULT — Before / After slider
+═══════════════════════════════════════════════════════ -->
+<div id="result-section" style="display:none;" aria-live="polite">
+
+    <div class="hv-step">
+        <div class="hv-step-header">
+            <span class="hv-step-num" style="background:var(--green);">✓</span>
+            <h2 class="hv-step-title">Your Result</h2>
+        </div>
+
+        <!-- Before/After slider -->
+        <div class="ba-container" id="ba-container" tabindex="0" role="img"
+            aria-label="Before and After hair comparison">
+            <div class="ba-pane ba-before">
+                <img id="ba-before-img" alt="Original photo" />
+                <span class="ba-label ba-label-before">BEFORE</span>
+            </div>
+            <div class="ba-pane ba-after">
+                <img id="ba-after-img" alt="AI-generated hairstyle result" />
+                <span class="ba-label ba-label-after">AFTER</span>
+            </div>
+            <div class="ba-divider" id="ba-divider">
+                <div class="ba-handle">
+                    <i class="ti ti-arrows-horizontal" aria-hidden="true"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result metadata -->
+        <div class="hv-result-meta" id="result-meta"></div>
+
+        <!-- Action buttons -->
+        <div class="hv-result-actions">
+            <button class="btn-primary" id="download-btn" type="button">
+                <i class="ti ti-download" aria-hidden="true"></i> Download result
+            </button>
+            <button class="btn-secondary" id="try-again-btn" type="button">
+                <i class="ti ti-refresh" aria-hidden="true"></i> Try another style
+            </button>
+            <button class="btn-secondary" id="show-mask-btn" type="button">
+                <i class="ti ti-eye" aria-hidden="true"></i> Show hair mask
+            </button>
+        </div>
+
+        <!-- Debug: mask overlay (hidden by default) -->
+        <div id="mask-section" style="display:none; margin-top:20px;">
+            <p class="field-label" style="margin-bottom:8px;">Hair mask used by AI</p>
+            <div class="hv-mask-row">
+                <img id="mask-img" class="hv-debug-img" alt="Binary hair mask" />
+                <img id="overlay-img" class="hv-debug-img" alt="Mask overlaid on photo" />
+            </div>
+            <p class="field-hint">Red area = what the AI replaced. If it looks wrong, try a better-lit frontal photo.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════════════════════════════ -->
+<div class="howto">
+    <h2>How it works</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-text">
+                <strong>Client-side resize</strong>
+                <span>Your browser resizes the photo to 512×512 before sending — no large files over the network, no
+                    server overload.</span>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-text">
+                <strong>Hair mask generation (CPU)</strong>
+                <span>The Flask backend uses MediaPipe Face Mesh and Selfie Segmentation to isolate exactly the hair
+                    region. This runs in ~1 second on any CPU.</span>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-text">
+                <strong>Stable Diffusion Inpainting (HuggingFace)</strong>
+                <span>The original photo + hair mask + style prompt are sent to HuggingFace's free inference servers.
+                    The AI regenerates only the masked area (~20-40 seconds).</span>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-text">
+                <strong>Before/After comparison</strong>
+                <span>Drag the slider to compare. Download the result or try a different style.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-warning" style="margin-top:24px;">
+        <i class="ti ti-server" aria-hidden="true"></i>
+        <span>
+            <strong>Local backend required:</strong> run <code>python app.py</code> inside
+            <code>hairviz-backend/</code>,
+            then set the API URL in the settings panel above.
+            The AI inference itself runs on HuggingFace's servers — your GPU is never used.
+        </span>
+    </div>
+</div>
+
+<script src="{{ site.baseurl }}/assets/js/hair-visualizer.js"></script>

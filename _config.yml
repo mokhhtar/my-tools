@@ -74,4 +74,10 @@ tool_registry:
     description: "Another tool is on its way."
     category: "—"
     status: "soon"
-
+  - id: hair-visualizer
+    name: "AI Hair Visualizer"
+    slug: "hair-visualizer"
+    icon: "ti-sparkles"
+    description: "See how you'd look with any haircut or product style. Upload a photo and let AI show you the result in seconds."
+    category: "AI"
+    status: "stable"
